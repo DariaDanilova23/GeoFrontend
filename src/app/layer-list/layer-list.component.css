@@ -1,0 +1,20 @@
+.check-box:hover{
+    cursor:pointer
+}
+/* предотвращаем растягивание при drag'n'drop */
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+  background: #5B707C;
+}
+
+/* чтобы оригинальный элемент не занимал место, когда его перетаскиваешь */
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+/* курсор "move" для визуального удобства */
+.cdk-drag {
+  cursor: move;
+}

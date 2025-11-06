@@ -1,0 +1,35 @@
+body {
+  background-color: #2F4754;
+}
+
+.block-style {
+  background-color: #2F4754;
+}
+::-webkit-scrollbar {
+  width: 5px; /* Ширина скроллбара */
+}
+  /* Для вертикального скроллбара */
+  ::-webkit-scrollbar:vertical {
+    width: 5px;
+  }
+
+  /* Для горизонтального скроллбара */
+  ::-webkit-scrollbar:horizontal {
+    height: 5px; /* Устанавливаем высоту горизонтального скроллбара */
+  }
+::-webkit-scrollbar-thumb {
+  background-color: #c7c7c7; /* Цвет ползунка скроллбара */
+  border-radius: 10px; /* Закругленные края */
+}
+
+::-webkit-slider-runnable-track {
+  width: 5px;
+}
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #636363; /* Цвет ползунка при наведении */
+    cursor: pointer
+  }
+
+::-webkit-scrollbar-track {
+  background: #1F2D33; /* Цвет фона трека (полосы прокрутки) */
+}

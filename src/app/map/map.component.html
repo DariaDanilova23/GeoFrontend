@@ -1,0 +1,114 @@
+
+<div class="h-100 d-flex">
+  <!--Боковое меню -->
+   <!-- Универсальное боковое меню -->
+  <div class="offcanvas-md offcanvas-start overflow-auto flex-shrink-0 block-style text-white p-0" 
+       tabindex="-1" 
+       id="layerSidebar" 
+       aria-labelledby="layerSidebarLabel" 
+       style="background-color: #343a40;">
+
+    <!-- Заголовок и кнопка закрытия: только для мобилки -->
+    <div class="offcanvas-header d-md-none">
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Закрыть"></button>
+    </div>
+
+    <!-- Содержимое меню -->
+    <div class="offcanvas-body d-flex flex-column p-0">
+      <button class="btn add-btn" [routerLink]="['/upload']">
+        <b>+ Добавить слой</b>
+      </button>
+      <div *ngIf="vectorLayers">
+        <div class="layer-header py-3"><p class="text-white m-0 text-center">Векторные слои</p></div>
+        <app-layer-list [layers]="vectorLayers" [map]="map"></app-layer-list>
+      </div>
+      <div *ngIf="rasterLayers">
+        <div class="layer-header py-3"><p class="text-white m-0 text-center">Растровые слои</p></div>
+        <app-layer-list [layers]="rasterLayers" [map]="map"></app-layer-list>
+      </div>
+      <div *ngIf="personalVectorLayers.length>0">
+        <div class="layer-header py-3"><p class="text-white m-0 text-center">Личные векторные слои</p></div>
+        <app-layer-list [isEditing]="isEditActive" [layers]="personalVectorLayers" [map]="map"></app-layer-list>
+      </div>
+      <div *ngIf="personalRasterLayers.length>0">
+        <div class="layer-header py-3"><p class="text-white m-0 text-center">Личные растровые слои</p></div>
+        <app-layer-list [isEditing]="isEditActive" [layers]="personalRasterLayers" [map]="map"></app-layer-list>
+      </div>
+    </div>
+  </div>
+  <!-- блок с картой и расчётами индексов -->
+  <div class="col d-flex flex-column h-100">
+    <!-- Карта и инструменты -->
+    <div class="flex-grow-1 d-flex">
+      <div class="d-flex flex-column p-0 h-100 w-100">
+        <!-- Инструменты -->
+        <div class="toolbar text-white p-2 d-flex justify-content-between">
+          <div class="text-white d-flex">
+            <button class="btn btn-outline-light d-md-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#layerSidebar" aria-controls="layerSidebar">
+              <i class="bi bi-layers-fill"></i>
+            </button>
+            <button *ngIf="personalVectorLayers.length>0 || personalRasterLayers.length>0" class="btn btn-outline-light" (click)="toggleEdit()" [class.active]="isEditActive" title="Редакирование слоёв">
+              <i class="bi bi-pencil-square"></i>
+            </button>
+
+            <app-ruler [map]="map"></app-ruler>
+            <app-search-data [vectorLayers]="combinedVectors" [map]="map" (dataFound)="handleData($event)" (buttonClick)="onControlButtonClick()" (geojsonLayerCreated)="onGeojsonLayerCreated($event)"></app-search-data>
+            <app-export-map [map]="map"></app-export-map>
+            <app-create-vector [map]="map"></app-create-vector>
+
+            <div class="dropdown">
+              <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-file-earmark-pdf"></i>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <li><a class="dropdown-item" (click)="createReport('NDVI')">NDVI</a></li>
+                <li><a class="dropdown-item" (click)="createReport('CVI')">CVI</a></li>
+                <li><a class="dropdown-item" (click)="createReport('EVI')">EVI</a></li>
+              </ul>
+            </div>
+
+            <button *ngIf="isEditActive" class="btn border-danger" (click)="deleteLayers()" [class.active]="isEditActive" title="Редакирование слоёв">
+              <i class="bi bi-trash-fill text-danger"></i>
+            </button>
+          </div>
+          <div>
+            <app-geolocation [map]="map"></app-geolocation>
+          </div>
+        </div>
+
+
+        <!-- Карта -->
+        <div id="map-container" class="map-container border flex-grow-1 position-relative">
+          <div id="map" class="map h-100" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()"></div>
+          <app-mouse-position [map]="map" *ngIf="showMousePosition"></app-mouse-position>
+        </div>
+      </div>
+
+
+      <div class="charts block-style">
+        <div class="py-5 rounded" style="background-color:#5b707c">
+          <div class="mx-2">
+            <p class="text-light text-center "><b>Вегетационные индексы</b></p>
+            <div class="d-flex justify-content-around">
+              <!--<button routerLink="/index/NDVI" class="rounded btn overflow-hidden  light-btn d-flex align-items-center justify-content-center fw-bold">NDVI</button>
+            <button routerLink="/index/CVI" class="rounded btn overflow-hidden  light-btn d-flex align-items-center justify-content-center fw-bold">CVI</button>
+            <button routerLink="/index/EVI" class="rounded btn overflow-hidden  light-btn d-flex align-items-center justify-content-center fw-bold">EVI</button>
+              -->
+              <button routerLink="/index/NDVI" class="rounded btn overflow-hidden p-1"><img class="img-veg" src="assets/NDVI.png" /></button>
+              <button routerLink="/index/CVI" class="rounded btn overflow-hidden p-1"><img class="img-veg" src="assets/CVI.png" /></button>
+              <button routerLink="/index/EVI" class="rounded btn overflow-hidden p-1"><img class="img-veg" src="assets/EVI.png" /></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Таблица атрибутов -->
+    <div class="flex-shrink-1" *ngIf="attributeData && attributeData.length > 0">
+      <div class="col-12 table-container bg-light overflow-auto" style="height:150px">
+        <app-attribute-table [data]="attributeData" [map]="map" [geojsonLayer]="geojsonLayer"></app-attribute-table>
+      </div>
+    </div>
+  </div>
+</div>

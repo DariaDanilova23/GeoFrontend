@@ -1,0 +1,15 @@
+<div *ngIf="data.length > 0" class="table-container">
+  <table class="table table-bordered table-hover table-condensed" id="attQryTable">
+    <thead class="sticky-top bg-white">
+      <tr>
+        <th *ngFor="let column of columns" class="border">{{ column }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let feature of data" (click)="onRowClick(feature)" [ngClass]="{'table-secondary': feature.id === selectedRowId}">
+        <td>{{ feature.id }}</td>
+        <td *ngFor="let column of columns.slice(1)">{{ feature.properties[column] }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

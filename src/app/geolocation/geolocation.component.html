@@ -1,0 +1,8 @@
+<!--<div class="form-check form-switch">
+  <i class="bi bi-geo-alt-fill"></i>
+  <input title="Геолокация" class="form-check-input" type="checkbox" id="geolocationToggle" (change)="toggleGeolocation()" [checked]="isGeolocationActive">
+</div>
+-->
+<button class="btn btn-outline-light me-2" type="button" id="geolocationToggle" (click)="toggleGeolocation()" [class.active]="isGeolocationActive" >
+  <i class="bi bi-geo-alt-fill"></i>
+</button>

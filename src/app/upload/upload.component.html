@@ -1,0 +1,52 @@
+<div class="pageContainer overflow-hidden d-flex justify-content-center align-items-center h-100">
+  <div class="container w-100 h-100">
+    <img src="assets/earth.png" class="position-absolute" alt="Background" />
+    <div class="form-container">
+      <h2 class="header">Загрузка слоя</h2>
+
+      <div class="tab-buttons">
+        <button class="rounded-top" [class.active]="selectedTab === 'raster'"
+                (click)="switchTab('raster')">
+          Растр
+        </button>
+        <button class="rounded-top" [class.active]="selectedTab === 'vector'"
+                (click)="switchTab('vector')">
+          Вектор
+        </button>
+      </div>
+
+      <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+        <div class="form-content">
+          <!-- Поля формы -->
+          <div class="form-group">
+            <label for="layerName">Название слоя</label>
+            <input type="text"
+                   id="layerName"
+                   formControlName="layerName"
+                   required />
+          </div>
+
+          <div *ngIf="selectedTab === 'vector'" class="form-group">
+            <label for="layerDate">Дата съемки</label>
+            <input type="date" id="layerDate" formControlName="layerDate" />
+          </div>
+
+          <div class="form-group">
+            <label for="file">Файл</label>
+            <input type="file"
+                   id="file"
+                   (change)="onFileSelected($event)"
+                   required />
+          </div>
+        </div>
+
+        <div class="buttons">
+          <button type="submit" class="btn upload-button">Загрузить</button>
+          <button type="button" class="btn cancel-button" (click)="onCancel()">
+            Отмена
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

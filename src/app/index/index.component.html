@@ -1,0 +1,39 @@
+<div class="h-100 overflow-hidden position-relative">
+  <!-- Фоновое изображение -->
+  <img src="assets/VI_back.png" class="position-fixed w-100 h-100 mw-100 mh-100" alt="Background" />
+
+  <div class="container  position-relative" style="z-index: 1; padding-top: 2rem;">
+    <h2 class="text-white">Загрузка снимков для расчета {{indexType}}</h2>
+
+    <form [formGroup]="uploadForm" (ngSubmit)="uploadImages()" class="form-container p-4 rounded shadow-lg text-white">
+      <div class="mb-3">
+        <label class="form-label">Снимок в красном спектре (RED):</label>
+        <input type="file" data-cy="red-input" class="form-control" (change)="onFileSelected($event, 'redImage')" accept="image/*" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Снимок в ближнем инфракрасном (NIR):</label>
+        <input type="file" data-cy="nir-input" class="form-control" (change)="onFileSelected($event, 'nirImage')" accept="image/*" />
+      </div>
+
+      <div *ngIf="indexType==='EVI'" class="mb-3">
+        <label class="form-label">Снимок в синем спектре (BLUE):</label>
+        <input type="file" data-cy="blue-input" class="form-control" (change)="onFileSelected($event, 'blueImage')" accept="image/*" />
+      </div>
+      <div *ngIf="indexType==='CVI'" class="mb-3">
+        <label class="form-label">Снимок в зелёном спектре (GREEN):</label>
+        <input type="file" data-cy="green-input" class="form-control" (change)="onFileSelected($event, 'greenImage')" accept="image/*" />
+      </div>
+
+      <button type="submit" data-cy="upload-btn" class="btn btn-primary" [disabled]="isLoading">Отправить</button>
+    </form>
+
+    <div *ngIf="isLoading" class="text-white mt-3">Загрузка...</div>
+
+    <div *ngIf="imageUrl" class="mt-4">
+      <h3 class="text-white">Результат {{indexType}}:</h3>
+      <img [src]="imageUrl" alt="Image" class="img-fluid rounded shadow" />
+      <button class="btn btn-success mt-2" (click)="onPublishClick()">Публикация</button>
+    </div>
+  </div>
+</div>

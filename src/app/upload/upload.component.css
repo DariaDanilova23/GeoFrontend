@@ -1,0 +1,84 @@
+/* Общие стили */
+.pageContainer {
+  background-color: #2F4754;
+
+}
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.background-image {
+  position: absolute;
+  height: 100vh;
+}
+
+.form-container {
+  background-color: #EEEEEE;
+  border-radius: 8px;
+  padding: 20px;
+  width: 600px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin-left: auto; /* Сдвиг формы вправо */
+  z-index: 100
+}
+
+.header {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.tab-buttons {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+  .tab-buttons button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    background-color: #e0e0e0;
+    color: #000;
+  }
+
+  .tab-buttons .active {
+    background-color: #4da6ff;
+    color: white;
+  }
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+  .buttons .upload-button {
+    background-color: #3e3a5a;
+    color: white;
+  }
+
+  .buttons .cancel-button {
+    background-color: #7b8b94;
+    color: white;
+  }

@@ -1,0 +1,13 @@
+.custom-control {
+  position: relative; /* Относительное позиционирование для размещения блока ниже */
+}
+
+.control-panel {
+  position: absolute; /* Абсолютное позиционирование относительно родителя */
+  background-color: white;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 1000; /* Установите высокий z-index, чтобы блок отображался поверх карты */
+}

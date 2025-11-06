@@ -1,0 +1,32 @@
+<div class="layer-list">
+  <ul cdkDropList
+      (cdkDropListDropped)="drop($event)"
+      class="list-group text-white list-unstyled">
+    <li *ngFor="let layer of layers"
+        cdkDrag
+        class="d-flex p-1 w-100 align-items-center">
+      <div style="background-color: #5B707C"
+           class="d-flex justify-content-between rounded w-100">
+        <span class="ps-2 text-truncate">
+          <input *ngIf="isEditing"
+                 type="checkbox"
+                 class="me-2"
+                 [checked]="layer.selected || false"
+                 (change)="layer.selected = !layer.selected" />
+          {{ layer.title }}
+        </span>
+
+        <i class="bi"
+           [ngClass]="{
+            'bi-eye': layer.layer.getVisible(),
+            'bi-eye-slash': !layer.layer.getVisible()
+          }"
+           (click)="toggleLayerVisibility(layer.layer)"
+           style="cursor: pointer; margin-right: 10px;"
+           [ngStyle]="{
+            color: layer.layer.getVisible() ? '' : '#cfcfcf'
+          }"></i>
+      </div>
+    </li>
+  </ul>
+</div>

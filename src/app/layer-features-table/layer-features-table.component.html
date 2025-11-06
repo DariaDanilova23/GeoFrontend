@@ -1,0 +1,26 @@
+<div class="layer-features-table" *ngIf="fields.length>0">
+  <div class="table-controls">
+    <button (click)="addField()">+ Поле</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th *ngFor="let field of fields">{{ field }}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let f of features; let i = index">
+        <td *ngFor="let field of fields">
+          <input [value]="f.get(field)"
+                 (input)="updateValue(f, field, $event)"
+                 placeholder="{{ field }}" />
+        </td>
+        <td>
+          <button (click)="deleteRow(i)">Удалить</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

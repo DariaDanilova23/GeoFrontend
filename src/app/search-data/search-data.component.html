@@ -1,0 +1,16 @@
+<div>
+  <button class="btn btn-outline-light" (click)="toggleControlPanel()" [class.active]="isSearchActive" title="Атрибуты слоя">
+    <i class="bi bi-database"></i>
+  </button>
+  
+</div>
+
+<div *ngIf="showControlPanel" class="control-panel p-3 bg-light border rounded">
+  <select class="form-select mb-3" [(ngModel)]="selectedLayerName">
+    <option value="" disabled selected>Выберите слой:</option>
+    <option *ngFor="let layer of vectorLayers" [value]="layer.layerName">
+      {{ layer.title }}
+    </option>
+  </select>
+  <button class="btn btn-primary" (click)="onButtonClick()">Найти</button>
+</div>

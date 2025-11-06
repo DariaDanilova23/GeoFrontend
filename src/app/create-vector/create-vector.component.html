@@ -1,0 +1,30 @@
+<button class="btn btn-outline-light" (click)="toggleCreatingVector()" [class.active]="isCreatingVector" title="Создание слоя">
+  <i class="bi bi-vector-pen"></i>
+</button>
+<button class="btn btn-outline-light"
+        (click)="toggleTable()"
+        [class.active]="showTable"
+        title="Показать таблицу">
+  <i class="bi bi-table"></i>
+</button>
+
+<div *ngIf="showTable" class="floating-panel" cdkDrag>
+  <div class="floating-header" cdkDragHandle>
+    <span>Атрибуты слоя</span>
+    <button class="close-btn" (click)="toggleTable()">×</button>
+  </div>
+
+  <div class="floating-content">
+    <app-layer-features-table [features]="source?.getFeatures() || []"
+                              [fields]="fields"
+                              (featuresChange)="onFeaturesChange($event)"
+                              (fieldsChange)="onFieldsChange($event)">
+    </app-layer-features-table>
+
+  </div>
+</div>
+
+<!-- новая таблица -->
+<!--<app-layer-features-table [features]="source?.getFeatures() || []"
+                          (featuresChange)="onFeaturesChange($event)">
+</app-layer-features-table>-->

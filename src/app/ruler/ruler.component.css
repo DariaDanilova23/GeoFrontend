@@ -1,0 +1,41 @@
+button.active {
+  background-color: lightgreen;
+}
+
+/* Other styles for the tooltip */
+.ol-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.ol-tooltip-measure {
+  opacity: 0.7;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.ol-tooltip-static {
+  background-color: #ffcc33;
+  color: black;
+  border: 1px solid white;
+}
+
+  .ol-tooltip-measure:before,
+  .ol-tooltip-static:before {
+    border-top: 6px solid rgba(0, 0, 0, 0.5);
+    border-right: 6px solid transparent;
+    border-left: 6px solid transparent;
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    margin-left: -6px;
+    left: 50%;
+  }
+
+  .ol-tooltip-static:before {
+    border-top-color: #ffcc33;
+  }
