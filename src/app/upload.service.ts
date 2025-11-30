@@ -9,15 +9,18 @@ import JSZip from 'jszip';
 import { Feature } from 'ol';
 import { Geometry } from 'ol/geom';
 import shpwrite from '@mapbox/shp-write';
+import WFS from 'ol/format/WFS';
+import { sessionData } from '../app/session-data';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UploadService {
   private workspaceName: string | null = '';
-  private roles: string[] = [];
-  private datastore = 'myvectorstore';
-  constructor(private http: HttpClient, private auth: AuthService) { }
+
+  constructor(private http: HttpClient, private auth: AuthService) {
+    this.setWorkspaceName(sessionData.getRoles(), sessionData.getNickname());
+  }
 
   getAuthToken(): Promise<string | null> {
     console.log("Запрос токена...");
@@ -33,8 +36,9 @@ export class UploadService {
   }
 
 
-  checkWorkspace(token: string): Promise<boolean> {
-    console.log(`Проверка рабочего пространства: ${this.workspaceName}`);
+  async checkWorkspace(token: string): Promise<boolean> {
+    if (this.workspaceName==null||'')
+      await this.setWorkspaceName(sessionData.getRoles(), sessionData.getNickname());
 
     return this.http.get(`http://localhost:8080/geoserver/rest/workspaces`, {
       headers: {
@@ -52,7 +56,10 @@ export class UploadService {
       });
   }
 
-  createWorkspace(token: string) {
+  async createWorkspace(token: string) {
+    if (this.workspaceName == null || '')
+      await this.setWorkspaceName(sessionData.getRoles(), sessionData.getNickname());
+
     const createStoreUrl = `http://localhost:8080/geoserver/rest/workspaces`;
     const body = `<workspace><name>${this.workspaceName}</name></workspace>`;
 
@@ -96,7 +103,10 @@ export class UploadService {
     }
   }
 
-  createCoverageStore(layerName: string, token: string) {
+  async createCoverageStore(layerName: string, token: string) {
+    if (this.workspaceName == null || '')
+      await this.setWorkspaceName(sessionData.getRoles(), sessionData.getNickname());
+
     try {
       var storeLink = `http://localhost:8080/geoserver/rest/workspaces/${this.workspaceName}/coveragestores`
       var storeBody = `
@@ -130,33 +140,10 @@ export class UploadService {
     }
   }
 
-  /*
-  async updateCoverageSRS(layerName: string, token: string) {
-    const url = `http://localhost:8080/geoserver/rest/workspaces/${this.workspaceName}/coveragestores/${layerName}/coverages/${layerName}`;
-    const body = `
-    <coverage>
-      <srs>EPSG:3857</srs>
-      <nativeCRS>EPSG:3857</nativeCRS>
-    </coverage>
-  `;
-
-    try {
-      await this.http.put(url, body, {
-        headers: {
-          'Content-Type': 'application/xml',
-          Authorization: `Bearer ${token}`,
-          'role': 'ADMIN'
-        },
-        responseType: 'text'
-      }).toPromise();
-      console.log('SRS успешно обновлен!');
-    } catch (error) {
-      console.error('Ошибка при обновлении SRS:', error);
-    }
-  }
-
-  */
   async uploadTiff(formData: FormData, layerName: string, token: string) {
+    if (this.workspaceName == null || '')
+      await this.setWorkspaceName(sessionData.getRoles(), sessionData.getNickname());
+
     // Логируем FormData
     console.log("Форма с данными uploadTiff:");
     formData.forEach((value, key) => {
@@ -180,29 +167,25 @@ export class UploadService {
 
   // Загрузка растрового слоя
   async uploadRasterLayer(formData: FormData, layerName: string) {
-    // Логируем FormData
-    console.log("Форма с данными: uploadRasterLayer");
-    formData.forEach((value, key) => {
-      console.log(key, value); // Проверяем содержимое FormData
-    });
+    if (this.workspaceName == null || '')
+      await this.setWorkspaceName(sessionData.getRoles(), sessionData.getNickname());
+
     const token: string | null = await this.getAuthToken(); // Получаем токен перед началом работы
-    console.log(token);
     if (!token) {
       throw new Error('Не удалось получить токен!');
     }
     const exists = await this.checkWorkspace(token);
-    console.log(exists);
     if (!exists) {
       this.createWorkspace(token);
       console.log(`Workspace "geoportal" не существует`);
     } else {
       console.log(`Workspace "geoportal" уже существует`);
     }
-    //еСЛИ СУЩЕСТВУЕТ ВОЗВРАЩАТЬ ИЗ МЕТОДА СООБЩЕНИЕ ПОЛЬЗОВАТЕЛЮ О ТОМ ЧТО НУЖНО ЗАДАТЬ ДРУГОЕ ИМЯ
+
     var existCoverageStore = await this.checkCoverageStoreExists(layerName, token);
     if (existCoverageStore) {
       alert(`Слой с таким именем уже существует. Попробуйте еще раз с другим именем.`);
-      return false; //Тут нужно добавить обработку типа измените имя
+      return false; 
     }
 
     const storeCreated = await this.createCoverageStore(layerName, token);
@@ -221,8 +204,11 @@ export class UploadService {
       return false;
     }
   }
-
+  
   async checkDataStore(token: string, dataStoreName: string): Promise<boolean> {
+    if (this.workspaceName == null || '')
+      await this.setWorkspaceName(sessionData.getRoles(), sessionData.getNickname());
+
     const url = `http://localhost:8080/geoserver/rest/workspaces/${this.workspaceName}/datastores/${dataStoreName}`;
     try {
       const response = await this.http.get(url, {
@@ -248,6 +234,9 @@ export class UploadService {
 
  
   async createDataStore( datastore: string) {
+    if (this.workspaceName == null || '')
+      await this.setWorkspaceName(sessionData.getRoles(), sessionData.getNickname());
+
     const token: string | null = await this.getAuthToken();
     if (!token) {
       throw new Error('Не удалось получить токен!');
@@ -276,15 +265,43 @@ export class UploadService {
       console.error('Ошибка при создании datastore:', error);
     }
   }
+
+
+  //Загрузка созданного векторного слоя
   public async uploadGeoJson(features: Feature<Geometry>[], layerName: string) {
-    const geojson = new GeoJSON().writeFeaturesObject(features);
+    if (this.workspaceName == null || '')
+      await this.setWorkspaceName(sessionData.getRoles(), sessionData.getNickname());
+
     const token: string | null = await this.getAuthToken();
     if (!token) {
       throw new Error('Не удалось получить токен!');
     }
-    const base64zip = await shpwrite.zip(geojson); // возвращает строку base64
+    const format = new GeoJSON();
 
-    // Конвертируем base64 → Uint8Array
+    const geojson = format.writeFeaturesObject(features, {
+      featureProjection: 'EPSG:3857',
+      dataProjection: 'EPSG:4326'
+    });
+    geojson.name = layerName;
+    // Определяем тип геометрии из первого объекта
+    const geometryType = features[0].getGeometry()?.getType();
+
+    let shpWriteType: 'point' | 'line' | 'polygon';
+
+    if (geometryType === 'Point') shpWriteType = 'point';
+    else if (geometryType === 'LineString') shpWriteType = 'line';
+    else if (geometryType === 'Polygon') shpWriteType = 'polygon';
+    else throw new Error('Неизвестный тип геометрии для shp-write');
+
+
+    const base64zip = await shpwrite.zip(geojson, {
+      compression: 'STORE', 
+      outputType: 'base64',
+      types: {
+        [shpWriteType]: layerName // Принудительно задаем тип, который ожидаем
+      }
+    });
+
     function base64ToUint8Array(base64: any): Uint8Array {
       const binaryString = atob(base64);
       const len = binaryString.length;
@@ -294,24 +311,33 @@ export class UploadService {
       }
       return bytes;
     }
-
     const zipBytes = base64ToUint8Array(base64zip);
-
     const blob = new Blob([zipBytes], { type: 'application/zip' });
-    this.workspaceName = this.workspaceName || 'd.d.danilova2001';
-    const url = `http://localhost:8080/geoserver/rest/workspaces/${this.workspaceName}/datastores/${this.datastore}/file.shp`;
+
+    console.log(geometryType);
+    const typeMapping = {
+      'Point': 'Point',
+      'LineString': 'LineString',
+      'Polygon': 'Polygon'
+    };
+    // URL с CRS параметром 
+    const url = `http://localhost:8080/geoserver/rest/workspaces/${this.workspaceName}/datastores/${layerName}/file.shp?configure=automatic&crs=EPSG:4326&featureType=${typeMapping[geometryType]}`;
 
     const headers = new HttpHeaders({
       'Content-Type': 'application/zip',
       Authorization: `Bearer ${token}`,
-      'role': 'ADMIN'
+      'role': 'ADMIN' 
     });
 
     return this.http.put(url, blob, { headers }).toPromise();
   }
-  
+
+ 
   // Загрузка векторного слоя
   public async uploadVectorLayer(formData: FormData, layerName: string) {
+    if (this.workspaceName == null || '')
+      await this.setWorkspaceName(sessionData.getRoles(), sessionData.getNickname());
+
     const file = formData.get('file') as File;
     const filename = file.name;
     const fileNameWithoutExt = filename.split('.').slice(0, -1).join('.');
@@ -352,7 +378,6 @@ export class UploadService {
       <title>${layerName}</title>
     </featureType>
   `;
-    /**      <srs>EPSG:4326</srs> */
     await this.http.post(featureTypeUrl, featureTypeXml, {
       headers: {
         'Content-Type': 'application/xml',

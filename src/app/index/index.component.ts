@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UploadService } from '../../app/upload.service';
-import { sessionData } from '../session-data';
 
 @Component({
   selector: 'app-index',
@@ -33,9 +32,9 @@ export class IndexComponent {
   ngOnInit() {
     this.indexType = this.route.snapshot.paramMap.get('indexType') as 'NDVI' | 'CVI' | 'EVI';
 
-    if (sessionData.getNickname() && sessionData.getRoles()) {
+    /*if (sessionData.getNickname() && sessionData.getRoles()) {
       this.uploadService.setWorkspaceName(sessionData.getRoles(), sessionData.getNickname());
-    }
+    }*/
   }
 
 
@@ -113,17 +112,16 @@ export class IndexComponent {
    onPublishClick() {
     console.log("onPublishClick")
      if (!this.fileToUp) {
-       console.error("ОШИБКА файл не найден");
+       console.error("Ошибка: файл не найден");
        return;
      }
-     if (this.uploadService) {  // Должен быть uploadService
+     if (this.uploadService) { 
        console.log(this.fileToUp);
 
        const formData = new FormData();
        formData.append('file', this.fileToUp);
      
        formData.append('layerName', `${this.indexType}_${this.uploadedFileName}`);
-
      
        // Вызов метода из uploadService
         this.uploadService.uploadRasterLayer(formData, `${this.indexType}_${this.uploadedFileName}`)

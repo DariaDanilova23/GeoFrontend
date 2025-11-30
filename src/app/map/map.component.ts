@@ -60,9 +60,8 @@ export class MapComponent implements OnInit {
 
   initilizeMap() {
     const mapView = new View({
-      center: [716457, 454484],
-      zoom: 1,
-      /*projection:'EPSG:4326'*/
+      center: [3830000, 5653800],
+      zoom: 7.5,
     });
 
     const standard = new TileLayer({
@@ -174,9 +173,9 @@ export class MapComponent implements OnInit {
             source: new VectorSource({
               url: `http://localhost:8080/geoserver/${sessionData.getNickname()}/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=${layerName}&maxFeatures=50&outputFormat=application/json`,
               format: new GeoJSON(),
-            /*  attributions: '@geoserver'*/
+              /*  attributions: '@geoserver'*/
             }),
-            style: new Style({
+            /*style: new Style({
               fill: new Fill({
                 color: 'rgba(0, 0, 255, 0.5)'
               }),
@@ -184,7 +183,45 @@ export class MapComponent implements OnInit {
                 color: '#319FD3',
                 width: 1
               })
-            }),
+            }),*/
+            style: (feature) => {
+              const type = feature.getGeometry()?.getType();
+              
+              if (type === 'Point') {
+                return new Style({
+                  image: new CircleStyle({
+                    radius: 5,
+                    fill: new Fill({ color: 'red' }),
+                    stroke: new Stroke({ color: 'white', width: 2 })
+                  })
+                });
+              }
+
+              if (type === 'LineString' || 'Polyline') {
+                return new Style({
+                  stroke: new Stroke({
+                    color: '#319FD3',
+                    width: 2
+                  })
+                });
+              }
+
+              if (type === 'Polygon') {
+                return new Style({
+                  fill: new Fill({
+                    color: 'rgba(0, 0, 255, 0.5)'
+                  }),
+                  stroke: new Stroke({
+                    color: '#319FD3',
+                    width: 1
+                  })
+                });
+              }
+              return new Style({
+                stroke: new Stroke({ color: '#000', width: 1 }),
+                fill: new Fill({ color: 'rgba(0,0,0,0)' })
+              });
+            },
             visible: true
           });
 

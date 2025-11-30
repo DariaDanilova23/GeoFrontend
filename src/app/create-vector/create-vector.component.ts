@@ -23,7 +23,7 @@ import shpwrite from '@mapbox/shp-write';
 
 export class CreateVectorComponent {
   constructor(private uploadService: UploadService, private router: Router) { }
-
+  public activeDrawingType: 'Point' | 'LineString' | 'Polygon' | null = null;
   @Input() map!: Map; // Получаем объект карты из родительского компонента
   public draw!: Draw;
   snap!: Snap;
@@ -31,14 +31,16 @@ export class CreateVectorComponent {
   source!: VectorSource;
   ctrlBarControl!: Control;
   public isCreatingVector: boolean = false;
+  // Добавляем переменную для хранения ссылки на DOM-элемент панели управления
+  private ctrlBarElement!: HTMLElement;
+
   creatingVectorLayer!: VectorLayer;
-  private roles: string[] = [];
   ngOnInit(): void {
     this.source = new VectorSource();
     this.creatingVectorLayer = new VectorLayer({
       source: this.source,
       style: (feature) => {
-        const type = feature.getGeometry()?.getType();
+        const type = feature.getGeometry()?.getType(); 
         if (type === 'Point') {
           return new Style({
             image: new CircleStyle({ radius: 6, fill: new Fill({ color: 'red' }), stroke: new Stroke({ color: 'white', width: 2 }) })
@@ -54,12 +56,14 @@ export class CreateVectorComponent {
       }
     });
     this.map.addLayer(this.creatingVectorLayer);
+    // Заменяем ctrlBar на this.ctrlBarElement
+    this.ctrlBarElement = document.createElement('div');
+    this.ctrlBarElement.style.paddingTop = '150px';
+    this.ctrlBarElement.style.background = 'transparent';
+    this.ctrlBarElement.className = 'rotate-north ol-unselectable ol-control';
 
+    // *** Изменения начинаются здесь ***
 
-    const ctrlBar = document.createElement('div');
-    ctrlBar.style.paddingTop = '150px';
-    ctrlBar.style.background = 'transparent';
-    ctrlBar.className = 'rotate-north ol-unselectable ol-control';
     const buttons = [
       { id: 1, icon: '<i class="bi bi-dot"></i>', type: 'Point', method: (btn: HTMLButtonElement) => this.drawVectorLayer('Point', btn), active: false },
       { id: 2, icon: '<i class="bi bi-slash-lg"></i>', type: 'LineString', method: (btn: HTMLButtonElement) => this.drawVectorLayer('LineString', btn), active: false },
@@ -67,26 +71,49 @@ export class CreateVectorComponent {
       { id: 4, icon: '<i class="bi bi-pencil-square"></i>', method: (btn: HTMLButtonElement) => this.editDrawing(btn), active: false },
       { id: 5, icon: '<i class="bi bi-floppy"></i>', method: (btn: HTMLButtonElement) => this.saveVectorLayer(btn), active: false }
     ];
-    buttons.forEach(btnCtrl => {
+
+    // Храним ссылки на первые три кнопки для быстрого доступа
+    const drawingButtons: HTMLButtonElement[] = [];
+
+    buttons.forEach((btnCtrl, index) => { // Добавляем index
       const btn = document.createElement('button');
       btn.classList.add("ctrl-btn")
       btn.innerHTML = btnCtrl.icon
-      btn.onclick = () => {
-        btnCtrl.method(btn);
-        /*
-        ctrlBar.querySelectorAll('button').forEach(b => { if (b != btn) b.style.backgroundColor = 'white' });
-        btnCtrl.active = !btnCtrl.active;
-        if (btnCtrl.active) {
-          btn.style.backgroundColor = 'red';
-        }
-        else
-          btn.style.backgroundColor = 'white';
-          */
-      };
-      ctrlBar.appendChild(btn);
-    });
-    this.ctrlBarControl = new Control({ element: ctrlBar });
 
+      // Если это одна из первых трех кнопок, добавляем ее в массив drawingButtons
+      if (index < 3) {
+        drawingButtons.push(btn);
+      }
+
+      btn.onclick = () => {
+        // Логика активации/деактивации кнопок
+        this.handleButtonClick(btnCtrl.id, btn, drawingButtons);
+        btnCtrl.method(btn);
+      };
+      this.ctrlBarElement.appendChild(btn); // Используем this.ctrlBarElement
+    });
+
+    this.ctrlBarControl = new Control({ element: this.ctrlBarElement });
+  }
+
+  // Метод для управления состоянием кнопок
+  private handleButtonClick(clickedId: number, clickedButton: HTMLButtonElement, drawingButtons: HTMLButtonElement[]): void {
+    if (clickedId >= 1 && clickedId <= 3) {
+      drawingButtons.forEach(button => {
+        button.style.backgroundColor = 'white'; // Сброс цвета для всех
+      });
+    }
+    
+    else {
+      if (clickedId === 5) {
+        drawingButtons.forEach(button => {
+          button.classList.remove('active'); // Делаем неактивными
+        });
+        drawingButtons.forEach(button => {
+          button.style.backgroundColor = 'white'; // Сброс цвета для всех
+        });
+      }
+    }
   }
 
   public showTable = false;
@@ -147,11 +174,18 @@ export class CreateVectorComponent {
     // Убираем старый Draw и Snap
     button.classList.toggle('active');
     if (button.classList.contains('active')) {
-      button.style.background = 'blue';
+      button.style.background = '#C1AFED';
     }
     else {
       button.style.background = 'white';
     }
+
+    if (!button.classList.contains('active')) {
+      this.activeDrawingType = null; // Инструмент деактивирован
+      return;
+    }
+
+    this.activeDrawingType = drawingStyle;
 
     if (this.draw) { this.map.removeInteraction(this.draw); this.source.clear() }
     if (this.snap) this.map.removeInteraction(this.snap);
@@ -182,7 +216,7 @@ export class CreateVectorComponent {
 
     });
   }
-
+ 
   async saveVectorLayer(button: HTMLButtonElement) {
     const features = this.source.getFeatures();
 
@@ -191,21 +225,42 @@ export class CreateVectorComponent {
       return;
     }
 
-    button.disabled = true;
-    button.innerText = '⏳ Сохраняем...';
+    if (!this.activeDrawingType) {
+      alert('Пожалуйста, выберите инструмент рисования (точки, линии или полигоны) и нарисуйте объекты, прежде чем сохранять их.');
+      return;
+    }
+
+    // Фильтруем объекты, оставляя только те, которые соответствуют активному типу
+    const featuresToSave = this.source.getFeatures().filter(feature =>
+      feature.getGeometry()?.getType() === this.activeDrawingType
+    );
+
+    if (!featuresToSave.length) {
+      alert(`Нет объектов типа ${this.activeDrawingType} для сохранения!`);
+      return;
+    }
+
+    //Запрос имени слоя
+    const layerNameInput = prompt("Пожалуйста, введите имя для нового слоя (только латиница, без пробелов):", `layer_${Date.now()}`);
+
+    if (layerNameInput === null || layerNameInput.trim() === '') {
+      alert('Имя слоя не может быть пустым. Сохранение отменено.');
+      return; 
+    }
+    const layerName = layerNameInput.trim();
 
     try {
-      const layerName = `layer_${Date.now()}`;
-      await this.uploadService.uploadGeoJson(features, layerName);
-      alert(`✅ Слой "${layerName}" успешно загружен в GeoServer!`);
+      await this.uploadService.uploadGeoJson(featuresToSave, layerName);
+
+      alert(`Слой "${layerName}" успешно загружен в GeoServer!`);
     } catch (err) {
       console.error('Ошибка при загрузке слоя:', err);
-      alert('❌ Ошибка при загрузке слоя. Проверьте консоль и настройки GeoServer.');
+      alert('Ошибка при загрузке слоя.');
     } finally {
       button.disabled = false;
-      button.innerText = '💾';
     }
   }
+  
 
   onFeaturesChange(updatedFeatures: Feature<Geometry>[]) {
     this.source.clear();

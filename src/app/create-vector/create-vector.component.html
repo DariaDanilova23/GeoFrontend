@@ -1,7 +1,7 @@
 <button class="btn btn-outline-light" (click)="toggleCreatingVector()" [class.active]="isCreatingVector" title="Создание слоя">
   <i class="bi bi-vector-pen"></i>
 </button>
-<button class="btn btn-outline-light"
+<button *ngIf="isCreatingVector" class="btn btn-outline-light"
         (click)="toggleTable()"
         [class.active]="showTable"
         title="Показать таблицу">

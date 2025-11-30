@@ -13,8 +13,7 @@ export class UploadComponent {
   selectedFile: File | null = null;
   selectedTab: 'raster' | 'vector' = 'raster';
 
-  private roles: string[] = [];
-  private workspaceName: string | null = '';
+//  private workspaceName: string | null = '';
 
   constructor(private fb: FormBuilder, private uploadService: UploadService) {
     this.formGroup = this.fb.group({
@@ -25,12 +24,12 @@ export class UploadComponent {
   }
 
   ngOnInit() {
-    const rolesString = localStorage.getItem('roles');
+    /*const rolesString = localStorage.getItem('roles');
     if (rolesString) {
       this.roles = JSON.parse(rolesString);
       const nickname = localStorage.getItem('nickname')!;
       this.uploadService.setWorkspaceName(this.roles, nickname);
-    }
+    }*/
   }
 
   onFileSelected(event: any) {
