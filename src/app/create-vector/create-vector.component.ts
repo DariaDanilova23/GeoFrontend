@@ -31,7 +31,6 @@ export class CreateVectorComponent {
   source!: VectorSource;
   ctrlBarControl!: Control;
   public isCreatingVector: boolean = false;
-  // Добавляем переменную для хранения ссылки на DOM-элемент панели управления
   private ctrlBarElement!: HTMLElement;
 
   creatingVectorLayer!: VectorLayer;
@@ -56,13 +55,11 @@ export class CreateVectorComponent {
       }
     });
     this.map.addLayer(this.creatingVectorLayer);
-    // Заменяем ctrlBar на this.ctrlBarElement
+    
     this.ctrlBarElement = document.createElement('div');
     this.ctrlBarElement.style.paddingTop = '150px';
     this.ctrlBarElement.style.background = 'transparent';
     this.ctrlBarElement.className = 'rotate-north ol-unselectable ol-control';
-
-    // *** Изменения начинаются здесь ***
 
     const buttons = [
       { id: 1, icon: '<i class="bi bi-dot"></i>', type: 'Point', method: (btn: HTMLButtonElement) => this.drawVectorLayer('Point', btn), active: false },
@@ -80,17 +77,16 @@ export class CreateVectorComponent {
       btn.classList.add("ctrl-btn")
       btn.innerHTML = btnCtrl.icon
 
-      // Если это одна из первых трех кнопок, добавляем ее в массив drawingButtons
+      // Если это одна из первых трех кнопок
       if (index < 3) {
         drawingButtons.push(btn);
       }
 
       btn.onclick = () => {
-        // Логика активации/деактивации кнопок
         this.handleButtonClick(btnCtrl.id, btn, drawingButtons);
         btnCtrl.method(btn);
       };
-      this.ctrlBarElement.appendChild(btn); // Используем this.ctrlBarElement
+      this.ctrlBarElement.appendChild(btn); 
     });
 
     this.ctrlBarControl = new Control({ element: this.ctrlBarElement });
@@ -134,7 +130,7 @@ export class CreateVectorComponent {
     const features = this.source?.getFeatures() || [];
     const geojsonStr = new GeoJSON().writeFeatures(features);
 
-    // Передадим GeoJSON через localStorage (удобно для межвкладочного обмена)
+    // Передадим GeoJSON через localStorage 
     localStorage.setItem('featuresData', geojsonStr);
 
     // Открываем новую вкладку с таблицей
@@ -148,7 +144,6 @@ export class CreateVectorComponent {
       this.map.removeInteraction(this.draw);
       this.map.removeInteraction(this.snap);
       this.map.removeInteraction(this.modify);
-      //this.source.clear();
       this.map.removeControl(this.ctrlBarControl);
     } else {
       this.isCreatingVector = true;
