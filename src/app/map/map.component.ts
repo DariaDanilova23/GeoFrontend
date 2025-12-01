@@ -172,18 +172,8 @@ export class MapComponent implements OnInit {
           const newLayer = new VectorLayer({
             source: new VectorSource({
               url: `http://localhost:8080/geoserver/${sessionData.getNickname()}/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=${layerName}&maxFeatures=50&outputFormat=application/json`,
-              format: new GeoJSON(),
-              /*  attributions: '@geoserver'*/
+              format: new GeoJSON()
             }),
-            /*style: new Style({
-              fill: new Fill({
-                color: 'rgba(0, 0, 255, 0.5)'
-              }),
-              stroke: new Stroke({
-                color: '#319FD3',
-                width: 1
-              })
-            }),*/
             style: (feature) => {
               const type = feature.getGeometry()?.getType();
               
@@ -196,7 +186,6 @@ export class MapComponent implements OnInit {
                   })
                 });
               }
-
               if (type === 'LineString' || 'Polyline') {
                 return new Style({
                   stroke: new Stroke({
@@ -205,7 +194,6 @@ export class MapComponent implements OnInit {
                   })
                 });
               }
-
               if (type === 'Polygon') {
                 return new Style({
                   fill: new Fill({
@@ -287,7 +275,6 @@ export class MapComponent implements OnInit {
       for (let i = 0; i < layers.length; i++) {
         const name = layers[i].getElementsByTagName('Name')[0]?.textContent;
         if (!name) continue;
-
         // Проверяем ключевые слова
         const keywords = layers[i].getElementsByTagName('Keyword');
         let isVector = false;
@@ -298,7 +285,6 @@ export class MapComponent implements OnInit {
             break;
           }
         }
-
         // Если это векторный слой, пропускаем его
         if (isVector) continue;
 
@@ -371,12 +357,12 @@ export class MapComponent implements OnInit {
      pdf.addFont("../../assets/times.ttf", "MyFont", "normal");
      pdf.setFont("MyFont");
 
-    // 1. Добавляем заголовок отчета
+    //Добавляем заголовок отчета
     pdf.setFontSize(20);
     pdf.setTextColor(40);
     pdf.text(`${indexName} отчёт`, 105, 15, { align: 'center' });
 
-    // 2. Добавляем карту в PDF
+    //Добавляем карту в PDF
     const mapElement = document.getElementById('map');
     if (mapElement) {
       const mapCanvas = await html2canvas(mapElement, {
@@ -389,15 +375,15 @@ export class MapComponent implements OnInit {
       pdf.addImage(mapImgData, 'PNG', 15, 25, 180, 120);
     }
 
-    // 3. Добавляем легенду в зависимости от индекса
+    //Добавляем легенду в зависимости от индекса
     this.addIndexLegend(pdf, indexName);
 
-    // 4. Добавляем метаданные
+    //Добавляем метаданные
     pdf.setFontSize(10);
      pdf.text(`Дата создания: ${new Date().toLocaleString()}`, 15, 155);
      pdf.text(`Пользователь: ${sessionData.getNickname() || 'Anonymous'}`, 15, 160);
 
-    // 5. Сохраняем PDF
+    //Сохраняем PDF
     pdf.save(`${indexName}_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
   }
 
@@ -451,7 +437,6 @@ export class MapComponent implements OnInit {
         ];
         break;
 
-      // Добавьте другие индексы по аналогии
       default:
         title = `${indexName} Color Scale`;
         description = 'Spectral index values';
@@ -470,9 +455,9 @@ export class MapComponent implements OnInit {
     // Рисуем легенду
     let yPos = 35;
     legendColors.forEach((item: any) => {
-      pdf.setFillColor(item.color); // Теперь передаем HEX значение
-      pdf.setDrawColor('#000000'); // Черная граница
-      pdf.rect(200, yPos, 10, 10, 'FD'); // 'FD' - fill and draw
+      pdf.setFillColor(item.color); 
+      pdf.setDrawColor('#000000'); 
+      pdf.rect(200, yPos, 10, 10, 'FD'); 
       pdf.setTextColor(0);
       pdf.setFontSize(10);
       pdf.text(`${item.value} - ${item.label}`, 215, yPos + 8);
@@ -496,9 +481,9 @@ export class MapComponent implements OnInit {
     for (let i = 0; i < gradientSteps; i++) {
       const ratio = i / gradientSteps;
       const color = this.getIndexColor(ratio, indexName);
-      pdf.setDrawColor(color); // Устанавливаем цвет границы
-      pdf.setFillColor(color); // Устанавливаем цвет заливки
-      pdf.rect(x + i * stepWidth, y, stepWidth, height, 'FD'); // 'FD' - fill and draw
+      pdf.setDrawColor(color);
+      pdf.setFillColor(color);
+      pdf.rect(x + i * stepWidth, y, stepWidth, height, 'FD'); 
     }
   }
 
@@ -523,7 +508,7 @@ export class MapComponent implements OnInit {
       default:
         // Градиент от черного к белому по умолчанию
         const val = Math.round(255 * ratio);
-        return this.rgbToHex(val, val, val); // Конвертируем в HEX
+        return this.rgbToHex(val, val, val);
     }
   }
 
