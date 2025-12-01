@@ -78,12 +78,9 @@ export class ExportMapComponent {
         mapContext.globalAlpha = 1;
         mapContext.setTransform(1, 0, 0, 1, 0, 0);
        
-
-        // Create download link
         const link = document.createElement('a');
         link.download = 'map.png';
 
-        // Try to export with transparent background first
         try {
           link.href = mapCanvas.toDataURL('image/png');
         } catch (e) {
