@@ -32,7 +32,7 @@ export class SearchDataComponent {
     if (!this.isSearchActive) {
       this.geojsonLayer?.getSource()?.clear();
       this.geojsonLayer = undefined;
-      this.geojsonLayerCreated.emit(this.geojsonLayer); // возвращаем обнуленный geojsonLayer родителю
+      this.geojsonLayerCreated.emit(this.geojsonLayer); // Возвращаем обнуленный geojsonLayer родителю
 
       setTimeout(() => {
         this.attributeData = [];
@@ -43,12 +43,11 @@ export class SearchDataComponent {
     
   }
 
-  addGeoJsonToMap(url: string) {//ф-ия подсвечивающая на карте полигоны выбранного слоя
+  addGeoJsonToMap(url: string) {//Ф-ия подсвечивающая на карте полигоны выбранного слоя
     // Удаление существующего слоя
     if (this.geojsonLayer) {
       this.geojsonLayer.getSource()?.clear();
     }
-
 
     // Создание нового слоя
     this.geojsonLayer = new VectorLayer({
@@ -68,10 +67,9 @@ export class SearchDataComponent {
     this.geojsonLayer.setZIndex(90);
 
     this.map.addLayer(this.geojsonLayer);
-    this.geojsonLayerCreated.emit(this.geojsonLayer); // передаем измененный geojsonLayer обратно родителю
+    this.geojsonLayerCreated.emit(this.geojsonLayer); // Передаем измененный geojsonLayer обратно родителю
   };
 
-  
   constructor(private http: HttpClient) { }
 
   populateQueryTable(url: string) {
@@ -88,15 +86,13 @@ export class SearchDataComponent {
     });
   }
 
-
   onButtonClick() {
     if (!this.selectedLayerName)
       return
     const parts = this.selectedLayerName.split(":");
-    var url = "http://localhost:8080/geoserver/" + parts[0] + "/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=" + parts[1] + "&outputFormat=application/json"; //url слоя на geoserver
-    this.addGeoJsonToMap(url); //ф-ия подсвечивающая на карте полигоны выбранного слоя
-    this.populateQueryTable(url); //ф-ия создания таблицы атрибутов
-   
+    var url = "http://localhost:8080/geoserver/" + parts[0] + "/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=" + parts[1] + "&outputFormat=application/json"; 
+    this.addGeoJsonToMap(url); //Ф-ия подсвечивающая на карте полигоны выбранного слоя
+    this.populateQueryTable(url); //Ф-ия создания таблицы атрибутов
     this.showControlPanel = false;
   }
 }
