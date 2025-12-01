@@ -59,7 +59,7 @@ export class UploadService {
   async createWorkspace(token: string) {
     if (this.workspaceName == null || '')
       await this.setWorkspaceName(sessionData.getRoles(), sessionData.getNickname());
-
+    
     const createStoreUrl = `http://localhost:8080/geoserver/rest/workspaces`;
     const body = `<workspace><name>${this.workspaceName}</name></workspace>`;
 
@@ -82,7 +82,6 @@ export class UploadService {
 
   async checkCoverageStoreExists(store: string, token: string): Promise<boolean> {
     const url = `http://localhost:8080/geoserver/rest/workspaces/${this.workspaceName}/coveragestores/${store}.json`;
-
     try {
       await this.http.get(url, {
         headers: {
@@ -91,22 +90,21 @@ export class UploadService {
         }
       }).toPromise();
 
-      console.log(`⚠️ CoverageStore "${store}" уже существует.`);
+      console.log(`CoverageStore "${store}" уже существует.`);
       return true;
     } catch (error: any) {
       if (error.status === 404) {
         console.log(`CoverageStore "${store}" не найден, можно создавать.`);
-        return false; // CoverageStore не существует → можно создавать
+        return false; 
       }
       console.error(`Ошибка при проверке CoverageStore:`, error);
-      return true; // Любая другая ошибка → считаем, что Store есть (чтобы не создавать дубликат)
+      return true; 
     }
   }
 
   async createCoverageStore(layerName: string, token: string) {
     if (this.workspaceName == null || '')
       await this.setWorkspaceName(sessionData.getRoles(), sessionData.getNickname());
-
     try {
       var storeLink = `http://localhost:8080/geoserver/rest/workspaces/${this.workspaceName}/coveragestores`
       var storeBody = `
@@ -133,10 +131,10 @@ export class UploadService {
           console.error('Ошибка создания store', error);
         },
       });
-      return true;  // Теперь есть явный возврат
+      return true;  
     } catch (error) {
       console.error(`Ошибка при создании CoverageStore`, error);
-      return false; // Возвращаем false при ошибке
+      return false; 
     }
   }
 
@@ -144,11 +142,6 @@ export class UploadService {
     if (this.workspaceName == null || '')
       await this.setWorkspaceName(sessionData.getRoles(), sessionData.getNickname());
 
-    // Логируем FormData
-    console.log("Форма с данными uploadTiff:");
-    formData.forEach((value, key) => {
-      console.log(key, value); // Проверяем содержимое FormData
-    });
     try {
       const url = `http://localhost:8080/geoserver/rest/workspaces/${this.workspaceName}/coveragestores/${layerName}/file.geotiff`;
       this.http.put(url, formData.get('file'), {
@@ -193,11 +186,8 @@ export class UploadService {
       throw new Error(`Ошибка при создании CoverageStore `);
     }
 
-
     var layerPublished = await this.uploadTiff(formData, layerName, token);
     if (layerPublished) {
-      // await this.updateCoverageSRS(layerName, token);
-      console.log(`Слой  успешно опубликован!`);
       return true;
     } else {
       console.error(` Ошибка: Слой не опубликован в GeoServer.`);
@@ -231,7 +221,6 @@ export class UploadService {
       }
     }
   }
-
  
   async createDataStore( datastore: string) {
     if (this.workspaceName == null || '')
@@ -265,7 +254,6 @@ export class UploadService {
       console.error('Ошибка при создании datastore:', error);
     }
   }
-
 
   //Загрузка созданного векторного слоя
   public async uploadGeoJson(features: Feature<Geometry>[], layerName: string) {
@@ -320,7 +308,6 @@ export class UploadService {
       'LineString': 'LineString',
       'Polygon': 'Polygon'
     };
-    // URL с CRS параметром 
     const url = `http://localhost:8080/geoserver/rest/workspaces/${this.workspaceName}/datastores/${layerName}/file.shp?configure=automatic&crs=EPSG:4326&featureType=${typeMapping[geometryType]}`;
 
     const headers = new HttpHeaders({
@@ -332,7 +319,6 @@ export class UploadService {
     return this.http.put(url, blob, { headers }).toPromise();
   }
 
- 
   // Загрузка векторного слоя
   public async uploadVectorLayer(formData: FormData, layerName: string) {
     if (this.workspaceName == null || '')
@@ -389,9 +375,6 @@ export class UploadService {
     alert('Векторный слой успешно загружен и опубликован');
   }
 
-
-
-
   // Вспомогательная функция для получения workspaceName
   setWorkspaceName(roles: string[], nickname: string|null) {
     if (roles.includes("provider")) {
@@ -401,7 +384,7 @@ export class UploadService {
     }
   }
   async deleteLayers(raster: string[], vector: string[], nickname: string) {
-    const token: string | null = await this.getAuthToken(); // Получаем токен перед началом работы
+    const token: string | null = await this.getAuthToken(); 
     vector.forEach((vectorLayer) => {
       this.http.delete('http://localhost:8080/geoserver/rest/workspaces/' + nickname + '/datastores/' + vectorLayer + '/?recurse=true', {
         headers: {
