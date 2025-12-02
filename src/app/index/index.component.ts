@@ -31,10 +31,6 @@ export class IndexComponent {
   }
   ngOnInit() {
     this.indexType = this.route.snapshot.paramMap.get('indexType') as 'NDVI' | 'CVI' | 'EVI';
-
-    /*if (sessionData.getNickname() && sessionData.getRoles()) {
-      this.uploadService.setWorkspaceName(sessionData.getRoles(), sessionData.getNickname());
-    }*/
   }
 
 
@@ -76,19 +72,18 @@ export class IndexComponent {
         // Убираем индикатор загрузки
         this.isLoading = false;
 
-        // Генерируем имя для загруженного файла
         const fileName = `${this.indexType}_${this.uploadedFileName}.tiff`;
 
         // Создаём Blob объект из полученного ответа
         const blob = new Blob([response], { type: 'image/tiff' });
 
-        // Генерируем URL для загрузки
+      
         const url = window.URL.createObjectURL(blob);
 
         // Создаём элемент для скачивания и инициируем скачивание файла
         const a = document.createElement('a');
         a.href = url;
-        a.download = fileName;  // Имя скачиваемого файла
+        a.download = fileName;  
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
