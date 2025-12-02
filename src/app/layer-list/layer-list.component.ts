@@ -39,7 +39,7 @@ export class LayerListComponent {
       mapLayers.push(l.layer);
     });
 
-    // (Необязательно) Обновим zIndex для надёжности
+    // Обновляем zIndex 
     for (let i = 0; i < this.layers.length; i++) {
       this.layers[i].layer.setZIndex(i + 1);
     }
